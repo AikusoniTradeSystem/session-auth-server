@@ -1,0 +1,42 @@
+spring:
+  profiles:
+    active: local
+  application:
+    name: session-auth-server
+  datasource:
+    driver-class-name: ${DB_DRIVER_CLASS_NAME}
+    url: ${DB_URL}
+    username: ${DB_USER}
+    password: ${DB_PASSWORD}
+
+server:
+  port: ${SERVER_PORT}
+  servlet:
+    context-path: /session
+    encoding:
+      charset: utf-8
+      enabled: true
+      force: true
+
+ats-session-auth:
+  test: test
+
+---
+spring:
+  config:
+    activate:
+      on-profile: local
+
+
+---
+spring:
+  config:
+    activate:
+      on-profile: dev
+
+
+---
+spring:
+  config:
+    activate:
+      on-profile: prod
