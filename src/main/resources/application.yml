@@ -12,7 +12,7 @@ spring:
 server:
   port: ${SERVER_PORT}
   servlet:
-    context-path: /session
+    context-path: /api/session
     encoding:
       charset: utf-8
       enabled: true

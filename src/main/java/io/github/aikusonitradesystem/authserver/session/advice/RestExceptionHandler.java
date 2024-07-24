@@ -1,9 +1,9 @@
 package io.github.aikusonitradesystem.authserver.session.advice;
 
-import io.github.aikusonitradesystem.authserver.session.model.view.ATSResponseBody;
 import io.github.aikusonitradesystem.core.constants.ErrorCode;
 import io.github.aikusonitradesystem.core.exception.ATSException;
 import io.github.aikusonitradesystem.core.exception.ATSRuntimeException;
+import io.github.aikusonitradesystem.mvcstandard.model.view.ATSResponseBody;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
