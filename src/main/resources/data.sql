@@ -1,3 +1,11 @@
-INSERT INTO users (username, password, email) VALUES
-('user1', 'password1', 'user1@example.com'),
-('user2', 'password2', 'user2@example.com');
+INSERT INTO USERS
+(USERNAME, PASSWORD)
+VALUES
+('admin', 'password1'),
+('player', 'password1');
+
+INSERT INTO USER_ROLE
+(USERNAME, ROLENAME)
+VALUES
+('admin', 'ADMIN'),
+('player', 'PLAYER');

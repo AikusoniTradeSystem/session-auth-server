@@ -6,5 +6,6 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @Data
 @ConfigurationProperties(prefix = "ats-session-auth")
 public class AuthServerProperties {
-    private String test;
+    private String passwordEncoderType;
+    private Boolean allowSwaggerWithoutLogin;
 }

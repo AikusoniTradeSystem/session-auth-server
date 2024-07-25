@@ -19,13 +19,28 @@ server:
       force: true
 
 ats-session-auth:
-  test: test
+  allow-swagger-without-login: false
+  password-encoder-type: bcrypt
+
+springdoc:
+  swagger-ui:
+    display-request-duration: true
+    disable-swagger-default-url: true
+    enabled: false
+  show-login-endpoint: true
 
 ---
 spring:
   config:
     activate:
       on-profile: local
+
+springdoc:
+  swagger-ui:
+    enabled: true
+
+ats-session-auth:
+  allow-swagger-without-login: true
 
 
 ---
@@ -34,9 +49,17 @@ spring:
     activate:
       on-profile: dev
 
+springdoc:
+  swagger-ui:
+    enabled: true
+
 
 ---
 spring:
   config:
     activate:
       on-profile: prod
+
+springdoc:
+  swagger-ui:
+    enabled: false

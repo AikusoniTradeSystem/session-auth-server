@@ -1,13 +1,144 @@
 package io.github.aikusonitradesystem.authserver.session.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.github.aikusonitradesystem.authserver.session.properties.AuthServerProperties;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.ProviderManager;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
+import org.springframework.security.web.firewall.StrictHttpFirewall;
 
 @Slf4j
 @Configuration
 @EnableWebSecurity(debug = true)
 public class WebSecurityConfig {
 
+    @Autowired
+    private AuthServerProperties authServerProperties;
 
+    @Autowired
+    private ObjectMapper objectMapper;
+
+    @Bean
+    public WebSecurityCustomizer webSecurityCustomizer() {
+        return (web) -> {
+            web.ignoring().requestMatchers(
+                    "/favicon.ico",
+                    "/error"
+            );
+            if (authServerProperties.getAllowSwaggerWithoutLogin()) {
+                web.ignoring().requestMatchers(
+                        "/v3/api-docs/**",
+                        "/swagger-ui/**",
+                        "/swagger-ui.html"
+                );
+            }
+        };
+    }
+
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        http
+//                .cors(AbstractHttpConfigurer::disable)
+//                .csrf(AbstractHttpConfigurer::disable)
+                .formLogin(AbstractHttpConfigurer::disable)
+                .anonymous(AbstractHttpConfigurer::disable)
+                .authorizeHttpRequests(authorize ->
+                        authorize
+                                .requestMatchers("/v1/public/**").permitAll()
+                                .requestMatchers("/v1/test/**").permitAll()
+                                .requestMatchers("/v1/auth/**").permitAll()
+                                .requestMatchers("/v1/user/register").permitAll()
+                                .anyRequest().authenticated()
+                )
+                .securityContext(securityContext ->
+                        securityContext
+                                .securityContextRepository(new HttpSessionSecurityContextRepository()))
+                .sessionManagement(session ->
+                        session
+                                .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
+                                .maximumSessions(1)
+                                .maxSessionsPreventsLogin(true)
+                                .expiredUrl("/v1/auth/session-expired")
+                )
+                .exceptionHandling(customizer ->
+                        customizer
+                                .authenticationEntryPoint(new AtsAuthenticationEntryPoint(objectMapper))
+                )
+                .logout(logout ->
+                        logout
+                                .logoutUrl("/v1/auth/logout")
+                                .logoutSuccessUrl("/v1/auth/logout-success")
+                                .deleteCookies("JSESSIONID")
+                );
+        http.addFilterAt(userNamePasswordAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
+
+        return http.build();
+    }
+
+    @Bean
+    public UsernamePasswordAuthenticationFilter userNamePasswordAuthenticationFilter() {
+        UsernamePasswordAuthenticationFilter usernamePasswordAuthenticationFilter = new AtsUserNamePasswordAuthenticationFilter(
+                authenticationManager(
+                        userDetailsService(),
+                        passwordEncoder()
+                )
+        );
+        usernamePasswordAuthenticationFilter.setFilterProcessesUrl("/v1/auth/login");
+        usernamePasswordAuthenticationFilter.setAuthenticationSuccessHandler(new SimpleUrlAuthenticationSuccessHandler("/v1/auth/login-success"));
+        usernamePasswordAuthenticationFilter.setAuthenticationFailureHandler(new AtsAuthenticationFailureHandler(objectMapper));
+        usernamePasswordAuthenticationFilter.setSecurityContextRepository(new HttpSessionSecurityContextRepository());
+        return usernamePasswordAuthenticationFilter;
+    }
+
+    @Bean
+    public AuthenticationManager authenticationManager(
+            UserDetailsService userDetailsService
+            , PasswordEncoder passwordEncoder
+    ) {
+        DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider();
+        authenticationProvider.setUserDetailsService(userDetailsService);
+        authenticationProvider.setPasswordEncoder(passwordEncoder);
+        authenticationProvider.setHideUserNotFoundExceptions(false);
+
+        return new ProviderManager(authenticationProvider);
+    }
+
+    @Bean
+    public UserDetailsService userDetailsService() {
+        return username -> {
+
+            return null;
+        };
+    }
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return switch (authServerProperties.getPasswordEncoderType()) {
+            case "bcrypt" -> new BCryptPasswordEncoder();
+            default -> throw new IllegalArgumentException("지원하지 않는 비밀번호 인코더입니다.");
+        };
+    }
+
+//    @Bean
+//    public StrictHttpFirewall httpFirewall() {
+//        StrictHttpFirewall httpFirewall = new StrictHttpFirewall();
+//        return httpFirewall;
+//    }
 }

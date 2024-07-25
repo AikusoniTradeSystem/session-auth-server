@@ -5,10 +5,11 @@ import jakarta.persistence.Id;
 import lombok.Data;
 
 @Data
-@Entity(name = "USERS")
-public class UserEntity {
+@Entity(name = "USERROLE")
+public class UserRoleEntity {
     @Id
     private String username;
 
-    private String password;
+    @Id
+    private String rolename;
 }
