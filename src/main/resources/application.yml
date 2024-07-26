@@ -27,6 +27,8 @@ springdoc:
     display-request-duration: true
     disable-swagger-default-url: true
     enabled: false
+    csrf:
+      enabled: true
   show-login-endpoint: true
 
 ---

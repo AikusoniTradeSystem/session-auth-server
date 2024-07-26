@@ -2,6 +2,7 @@ package io.github.aikusonitradesystem.authserver.session.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.aikusonitradesystem.authserver.session.properties.AuthServerProperties;
+import io.github.aikusonitradesystem.authserver.session.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -22,7 +23,8 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
-import org.springframework.security.web.firewall.StrictHttpFirewall;
+
+import java.util.List;
 
 @Slf4j
 @Configuration
@@ -56,11 +58,16 @@ public class WebSecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
 //                .cors(AbstractHttpConfigurer::disable)
-//                .csrf(AbstractHttpConfigurer::disable)
+                .csrf(csrf ->
+                        csrf.ignoringRequestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html")
+                                .ignoringRequestMatchers("/v1/auth/login")
+                                .ignoringRequestMatchers("/v1/user/register")
+                )
                 .formLogin(AbstractHttpConfigurer::disable)
                 .anonymous(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(authorize ->
                         authorize
+                                .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
                                 .requestMatchers("/v1/public/**").permitAll()
                                 .requestMatchers("/v1/test/**").permitAll()
                                 .requestMatchers("/v1/auth/**").permitAll()
@@ -73,7 +80,7 @@ public class WebSecurityConfig {
                 .sessionManagement(session ->
                         session
                                 .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
-                                .maximumSessions(1)
+                                .maximumSessions(-1)
                                 .maxSessionsPreventsLogin(true)
                                 .expiredUrl("/v1/auth/session-expired")
                 )
@@ -98,7 +105,8 @@ public class WebSecurityConfig {
                 authenticationManager(
                         userDetailsService(),
                         passwordEncoder()
-                )
+                ),
+                objectMapper
         );
         usernamePasswordAuthenticationFilter.setFilterProcessesUrl("/v1/auth/login");
         usernamePasswordAuthenticationFilter.setAuthenticationSuccessHandler(new SimpleUrlAuthenticationSuccessHandler("/v1/auth/login-success"));
@@ -120,11 +128,13 @@ public class WebSecurityConfig {
         return new ProviderManager(authenticationProvider);
     }
 
+    @Autowired
+    private UserService userService;
+
     @Bean
     public UserDetailsService userDetailsService() {
         return username -> {
-
-            return null;
+            return new User("test", passwordEncoder().encode("test"), List.of());
         };
     }
 

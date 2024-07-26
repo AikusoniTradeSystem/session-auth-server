@@ -1,5 +1,7 @@
 package io.github.aikusonitradesystem.authserver.session.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.github.aikusonitradesystem.authserver.session.model.form.LoginForm;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
@@ -11,11 +13,15 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import java.util.stream.Collectors;
+
 @Slf4j
 public class AtsUserNamePasswordAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
+    private final ObjectMapper objectMapper;
 
-    public AtsUserNamePasswordAuthenticationFilter(AuthenticationManager authenticationManager) {
+    public AtsUserNamePasswordAuthenticationFilter(AuthenticationManager authenticationManager, ObjectMapper objectMapper) {
         super(authenticationManager);
+        this.objectMapper = objectMapper;
     }
 
     @Override
@@ -31,7 +37,10 @@ public class AtsUserNamePasswordAuthenticationFilter extends UsernamePasswordAut
 
         if (MediaType.APPLICATION_JSON_VALUE.equals(request.getContentType())) {
             try {
+                LoginForm loginForm = objectMapper.readValue(request.getReader().lines().collect(Collectors.joining()), LoginForm.class);
 
+                username = loginForm.getUsername();
+                password = loginForm.getPassword();
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
