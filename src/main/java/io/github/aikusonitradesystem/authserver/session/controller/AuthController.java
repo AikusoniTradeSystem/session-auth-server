@@ -32,18 +32,21 @@ public class AuthController {
 
     @GetMapping("/login-success")
     public ResponseEntity<ATSResponseBody<String>> loginSuccess() {
+        // TODO
         return ATSResponseBody.<String>ok("OK")
                 .toResponseEntity();
     }
 
     @GetMapping("/logout-success")
     public ResponseEntity<ATSResponseBody<String>> logoutSuccess() {
+        // TODO
         return ATSResponseBody.<String>ok("OK")
                 .toResponseEntity();
     }
 
     @GetMapping("/session-expired")
     public ResponseEntity<ATSResponseBody<String>> sessionExpired() {
+        // TODO
         return ATSResponseBody.<String>ok("OK")
                 .toResponseEntity();
     }

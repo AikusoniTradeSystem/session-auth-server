@@ -1,7 +1,9 @@
 package io.github.aikusonitradesystem.authserver.session.repository;
 
-import org.springframework.stereotype.Repository;
+import io.github.aikusonitradesystem.authserver.session.model.entity.UserEntity;
+import org.springframework.data.jpa.repository.JpaRepository;
 
-@Repository
-public interface UserRepository {
+public interface UserRepository extends JpaRepository<UserEntity, String> {
+    UserEntity findByUsername(String username);
+    UserEntity deleteByUsername(String username);
 }

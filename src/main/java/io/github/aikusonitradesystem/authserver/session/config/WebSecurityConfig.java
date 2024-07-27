@@ -1,10 +1,14 @@
 package io.github.aikusonitradesystem.authserver.session.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.github.aikusonitradesystem.authserver.session.constants.SessionAuthServerErrorCode;
+import io.github.aikusonitradesystem.authserver.session.dao.UserDao;
+import io.github.aikusonitradesystem.authserver.session.exception.AtsUsernameNotFoundException;
+import io.github.aikusonitradesystem.authserver.session.helper.PasswordHelper;
+import io.github.aikusonitradesystem.authserver.session.model.dto.UserDto;
 import io.github.aikusonitradesystem.authserver.session.properties.AuthServerProperties;
-import io.github.aikusonitradesystem.authserver.session.service.UserService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -29,13 +33,12 @@ import java.util.List;
 @Slf4j
 @Configuration
 @EnableWebSecurity(debug = true)
+@RequiredArgsConstructor
 public class WebSecurityConfig {
-
-    @Autowired
-    private AuthServerProperties authServerProperties;
-
-    @Autowired
-    private ObjectMapper objectMapper;
+    private final AuthServerProperties authServerProperties;
+    private final ObjectMapper objectMapper;
+    private final UserDao userDao;
+    private final PasswordHelper passwordHelper;
 
     @Bean
     public WebSecurityCustomizer webSecurityCustomizer() {
@@ -128,13 +131,17 @@ public class WebSecurityConfig {
         return new ProviderManager(authenticationProvider);
     }
 
-    @Autowired
-    private UserService userService;
-
     @Bean
     public UserDetailsService userDetailsService() {
         return username -> {
-            return new User("test", passwordEncoder().encode("test"), List.of());
+            UserDto userDto = userDao.getUser(username);
+            if (userDto == null) {
+                throw new AtsUsernameNotFoundException(SessionAuthServerErrorCode.FAILED_TO_FIND_USER, "UDS-000001", "사용자를 찾을 수 없습니다.");
+            }
+            if (!authServerProperties.getPasswordEncoderType().equals(passwordHelper.passwordType(userDto.getPassword()))) {
+                throw new AtsUsernameNotFoundException(SessionAuthServerErrorCode.PASSWORD_IS_TOO_OLD, "UDS-000002", "비밀번호 인코더가 일치하지 않습니다.");
+            }
+            return new User(userDto.getUsername(), passwordHelper.encodedPassword(userDto.getPassword()), List.of());
         };
     }
 

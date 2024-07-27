@@ -39,8 +39,8 @@ repositories {
 
 dependencies {
 
-    implementation 'io.github.aikusonitradesystem:ats-spring-core:0.0.1-SNAPSHOT'
-    implementation 'io.github.aikusonitradesystem:ats-spring-mvc-standard:0.0.1-SNAPSHOT'
+    implementation 'io.github.aikusonitradesystem:ats-spring-core:0.0.2'
+    implementation 'io.github.aikusonitradesystem:ats-spring-mvc-standard:0.0.2'
 
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'

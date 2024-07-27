@@ -1,9 +1,12 @@
 package io.github.aikusonitradesystem.authserver.session.exception;
 
 import io.github.aikusonitradesystem.core.common.BaseErrorCode;
+import io.github.aikusonitradesystem.core.exception.BaseAtsException;
+import lombok.Getter;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
-public class AtsUsernameNotFoundException extends UsernameNotFoundException {
+@Getter
+public class AtsUsernameNotFoundException extends UsernameNotFoundException implements BaseAtsException {
     private final BaseErrorCode errorCode;
     private final String errorAlias;
 
