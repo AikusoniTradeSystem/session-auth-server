@@ -1,9 +1,14 @@
 package io.github.aikusonitradesystem.authserver.session.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.github.aikusonitradesystem.authserver.session.constants.SessionAuthServerErrorCode;
+import io.github.aikusonitradesystem.authserver.session.dao.UserDao;
+import io.github.aikusonitradesystem.authserver.session.exception.AtsUsernameNotFoundException;
+import io.github.aikusonitradesystem.authserver.session.helper.PasswordHelper;
+import io.github.aikusonitradesystem.authserver.session.model.dto.UserDto;
 import io.github.aikusonitradesystem.authserver.session.properties.AuthServerProperties;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -22,18 +27,18 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
-import org.springframework.security.web.firewall.StrictHttpFirewall;
+
+import java.util.List;
 
 @Slf4j
 @Configuration
 @EnableWebSecurity(debug = true)
+@RequiredArgsConstructor
 public class WebSecurityConfig {
-
-    @Autowired
-    private AuthServerProperties authServerProperties;
-
-    @Autowired
-    private ObjectMapper objectMapper;
+    private final AuthServerProperties authServerProperties;
+    private final ObjectMapper objectMapper;
+    private final UserDao userDao;
+    private final PasswordHelper passwordHelper;
 
     @Bean
     public WebSecurityCustomizer webSecurityCustomizer() {
@@ -56,11 +61,16 @@ public class WebSecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
 //                .cors(AbstractHttpConfigurer::disable)
-//                .csrf(AbstractHttpConfigurer::disable)
+                .csrf(csrf ->
+                        csrf.ignoringRequestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html")
+                                .ignoringRequestMatchers("/v1/auth/login")
+                                .ignoringRequestMatchers("/v1/user/register")
+                )
                 .formLogin(AbstractHttpConfigurer::disable)
                 .anonymous(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(authorize ->
                         authorize
+                                .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
                                 .requestMatchers("/v1/public/**").permitAll()
                                 .requestMatchers("/v1/test/**").permitAll()
                                 .requestMatchers("/v1/auth/**").permitAll()
@@ -73,7 +83,7 @@ public class WebSecurityConfig {
                 .sessionManagement(session ->
                         session
                                 .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
-                                .maximumSessions(1)
+                                .maximumSessions(-1)
                                 .maxSessionsPreventsLogin(true)
                                 .expiredUrl("/v1/auth/session-expired")
                 )
@@ -98,7 +108,8 @@ public class WebSecurityConfig {
                 authenticationManager(
                         userDetailsService(),
                         passwordEncoder()
-                )
+                ),
+                objectMapper
         );
         usernamePasswordAuthenticationFilter.setFilterProcessesUrl("/v1/auth/login");
         usernamePasswordAuthenticationFilter.setAuthenticationSuccessHandler(new SimpleUrlAuthenticationSuccessHandler("/v1/auth/login-success"));
@@ -123,8 +134,14 @@ public class WebSecurityConfig {
     @Bean
     public UserDetailsService userDetailsService() {
         return username -> {
-
-            return null;
+            UserDto userDto = userDao.getUser(username);
+            if (userDto == null) {
+                throw new AtsUsernameNotFoundException(SessionAuthServerErrorCode.FAILED_TO_FIND_USER, "UDS-000001", "사용자를 찾을 수 없습니다.");
+            }
+            if (!authServerProperties.getPasswordEncoderType().equals(passwordHelper.passwordType(userDto.getPassword()))) {
+                throw new AtsUsernameNotFoundException(SessionAuthServerErrorCode.PASSWORD_IS_TOO_OLD, "UDS-000002", "비밀번호 인코더가 일치하지 않습니다.");
+            }
+            return new User(userDto.getUsername(), passwordHelper.encodedPassword(userDto.getPassword()), List.of());
         };
     }
 

@@ -24,30 +24,30 @@ public class AuthController {
         if (authentication != null && authentication.isAuthenticated()) {
             return ATSResponseBody.<Void>ok(null)
                     .toResponseEntity();
-        } else {
-            return ATSResponseBody.<Void>error(ErrorCode.UNAUTHORIZED, "ATC000001", "미인증 상태입니다.")
-                    .toResponseEntity();
         }
-    }
 
-    @GetMapping("/v1/auth/login-success")
-    public ResponseEntity<ATSResponseBody<Void>> loginSuccess() {
-        // TODO
-        return ATSResponseBody.<Void>ok(null)
+        return ATSResponseBody.<Void>error(ErrorCode.UNAUTHORIZED, "ATC000001", "미인증 상태입니다.")
                 .toResponseEntity();
     }
 
-    @GetMapping("/v1/auth/logout-success")
-    public ResponseEntity<ATSResponseBody<Void>> logoutSuccess() {
+    @GetMapping("/login-success")
+    public ResponseEntity<ATSResponseBody<String>> loginSuccess() {
         // TODO
-        return ATSResponseBody.<Void>ok(null)
+        return ATSResponseBody.<String>ok("OK")
                 .toResponseEntity();
     }
 
-    @GetMapping("/v1/auth/session-expired")
-    public ResponseEntity<ATSResponseBody<Void>> sessionExpired() {
+    @GetMapping("/logout-success")
+    public ResponseEntity<ATSResponseBody<String>> logoutSuccess() {
         // TODO
-        return ATSResponseBody.<Void>ok(null)
+        return ATSResponseBody.<String>ok("OK")
+                .toResponseEntity();
+    }
+
+    @GetMapping("/session-expired")
+    public ResponseEntity<ATSResponseBody<String>> sessionExpired() {
+        // TODO
+        return ATSResponseBody.<String>ok("OK")
                 .toResponseEntity();
     }
 }

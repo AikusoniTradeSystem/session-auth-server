@@ -1,11 +1,15 @@
 package io.github.aikusonitradesystem.authserver.session.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.github.aikusonitradesystem.authserver.session.exception.AtsUsernameNotFoundException;
+import com.fasterxml.jackson.databind.ObjectWriter;
+import io.github.aikusonitradesystem.core.constants.ErrorCode;
+import io.github.aikusonitradesystem.core.exception.BaseAtsException;
+import io.github.aikusonitradesystem.mvcstandard.model.view.ATSResponseBody;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 
@@ -17,11 +21,31 @@ public class AtsAuthenticationFailureHandler implements AuthenticationFailureHan
 
     @Override
     public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) throws IOException, ServletException {
-        if (exception instanceof AtsUsernameNotFoundException) {
+        if (exception instanceof BaseAtsException baseAtsException) {
+            response.setStatus(baseAtsException.getErrorCode().getStatusCode());
+            response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+            ATSResponseBody<Void> responseBody = ATSResponseBody.<Void>error(
+                    baseAtsException.getErrorCode()
+                    , baseAtsException.getErrorAlias()
+                    , baseAtsException.getMessage()
+            );
 
+            ObjectWriter ow = objectMapper.writer().withDefaultPrettyPrinter();
+            String jsonBody = ow.writeValueAsString(responseBody);
+            response.getWriter().write(jsonBody);
             return;
         }
 
+        response.setStatus(401);
+        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+        ATSResponseBody<Void> responseBody = ATSResponseBody.<Void>error(
+                ErrorCode.UNAUTHORIZED
+                , "AFH-000001"
+                , exception.getMessage()
+        );
 
+        ObjectWriter ow = objectMapper.writer().withDefaultPrettyPrinter();
+        String jsonBody = ow.writeValueAsString(responseBody);
+        response.getWriter().write(jsonBody);
     }
 }
