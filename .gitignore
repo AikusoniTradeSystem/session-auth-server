@@ -37,3 +37,6 @@ out/
 .vscode/
 
 gradle.properties
+
+### local h2 ###
+.h2data
