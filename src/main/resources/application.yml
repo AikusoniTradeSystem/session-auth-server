@@ -21,6 +21,8 @@ server:
 ats-session-auth:
   allow-swagger-without-login: false
   password-encoder-type: bcrypt
+  cors-allowed-origins:
+    - '*'
 
 springdoc:
   swagger-ui:
