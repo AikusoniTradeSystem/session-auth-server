@@ -3,7 +3,6 @@ package io.github.aikusonitradesystem.authserver.session.dao;
 import io.github.aikusonitradesystem.authserver.session.constants.SessionAuthServerErrorCode;
 import io.github.aikusonitradesystem.authserver.session.model.dto.UserDto;
 import io.github.aikusonitradesystem.authserver.session.model.dto.UserSearchDto;
-import io.github.aikusonitradesystem.authserver.session.model.form.UserSearchForm;
 import io.github.aikusonitradesystem.authserver.session.model.mapper.UserModelMapper;
 import io.github.aikusonitradesystem.authserver.session.repository.UserRepository;
 import io.github.aikusonitradesystem.core.exception.ATSRuntimeException;
