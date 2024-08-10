@@ -3,6 +3,7 @@ package io.github.aikusonitradesystem.authserver.session.config;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.aikusonitradesystem.authserver.session.constants.SessionAuthServerErrorCode;
 import io.github.aikusonitradesystem.authserver.session.dao.UserDao;
+import io.github.aikusonitradesystem.authserver.session.dao.UserRoleDao;
 import io.github.aikusonitradesystem.authserver.session.exception.AtsUsernameNotFoundException;
 import io.github.aikusonitradesystem.authserver.session.helper.PasswordHelper;
 import io.github.aikusonitradesystem.authserver.session.model.dto.UserDto;
@@ -19,6 +20,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -29,6 +31,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Configuration
@@ -38,6 +41,7 @@ public class WebSecurityConfig {
     private final AuthServerProperties authServerProperties;
     private final ObjectMapper objectMapper;
     private final UserDao userDao;
+    private final UserRoleDao userRoleDao;
     private final PasswordHelper passwordHelper;
 
     @Bean
@@ -83,7 +87,7 @@ public class WebSecurityConfig {
                 .sessionManagement(session ->
                         session
                                 .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
-                                .maximumSessions(-1)
+                                .maximumSessions(1)
                                 .maxSessionsPreventsLogin(true)
                                 .expiredUrl("/v1/auth/session-expired")
                 )
@@ -141,7 +145,8 @@ public class WebSecurityConfig {
             if (!authServerProperties.getPasswordEncoderType().equals(passwordHelper.passwordType(userDto.getPassword()))) {
                 throw new AtsUsernameNotFoundException(SessionAuthServerErrorCode.PASSWORD_IS_TOO_OLD, "UDS-000002", "비밀번호 인코더가 일치하지 않습니다.");
             }
-            return new User(userDto.getUsername(), passwordHelper.encodedPassword(userDto.getPassword()), List.of());
+            List<String> roles = userRoleDao.getRoles(username);
+            return new User(userDto.getUsername(), passwordHelper.encodedPassword(userDto.getPassword()), roles.stream().map(SimpleGrantedAuthority::new).collect(Collectors.toList()));
         };
     }
 
