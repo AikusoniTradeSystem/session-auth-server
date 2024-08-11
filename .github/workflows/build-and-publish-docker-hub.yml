@@ -37,10 +37,10 @@ jobs:
           docker build -t aikusoni/ats-session-auth-server:${{ env.COMMIT_SHA }} .
 
       - name: Log in to Docker Hub
-        uses: docker/login-action@v2
+        uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
+          password: ${{ secrets.DOCKER_TOKEN }}
 
       - name: Push Docker image to Docker Hub
         run: docker push aikusoni/ats-session-auth-server:${{ env.COMMIT_SHA }}
