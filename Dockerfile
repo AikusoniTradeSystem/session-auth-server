@@ -18,6 +18,6 @@ RUN test -n "DB_DRIVER_CLASS_NAME" || echo "Warning: DB_DRIVER_CLASS_NAME is not
 
 COPY build/libs/session-auth-server-0.0.1-SNAPSHOT.jar /app/session-auth-server.jar
 
-EXPOSE ${DOCKER_PORT}
+EXPOSE ${SERVER_PORT}
 
 ENTRYPOINT ["java", "-jar", "/app/session-auth-server.jar"]
