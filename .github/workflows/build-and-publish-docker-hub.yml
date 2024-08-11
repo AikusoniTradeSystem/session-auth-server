@@ -42,6 +42,12 @@ jobs:
     needs: bootjar-build
 
     steps:
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
       - name: Get Git commit SHA for versioning
         id: vars
         run: |
@@ -49,7 +55,9 @@ jobs:
 
       - name: Build Docker image
         run: |
-          docker build -t aikusoni/ats-session-auth-server:${{ env.COMMIT_SHA }} .
+          docker buildx build \
+            --platform linux/amd64,linux/arm64 \
+            -t aikusoni/ats-session-auth-server:${{ env.COMMIT_SHA }} .
 
       - name: Login to Docker Hub
         uses: docker/login-action@v3
