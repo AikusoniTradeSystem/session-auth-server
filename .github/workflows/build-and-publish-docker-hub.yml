@@ -64,22 +64,16 @@ jobs:
         run: |
           echo "COMMIT_SHA=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
 
-      - name: Build Docker image
-        run: |
-          docker buildx build \
-            --platform linux/amd64,linux/arm64 \
-            -t aikusoni/ats-session-auth-server:${{ env.COMMIT_SHA }} .
-
       - name: Login to Docker Hub
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Push Docker image to Docker Hub
-        run: docker push aikusoni/ats-session-auth-server:${{ env.COMMIT_SHA }}
-
-      - name: Tag the latest image
+      - name: Build and Push Docker image
         run: |
-          docker tag aikusoni/ats-session-auth-server:${{ env.COMMIT_SHA }} aikusoni/ats-session-auth-server:latest
-          docker push aikusoni/ats-session-auth-server:latest
+          docker buildx build \
+            --platform linux/amd64,linux/arm64 \
+            -t aikusoni/ats-session-auth-server:${{ env.COMMIT_SHA }} .
+            -t aikusoni/ats-session-auth-server:latest \
+            --push .
