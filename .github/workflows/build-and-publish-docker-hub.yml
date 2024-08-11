@@ -39,8 +39,9 @@ jobs:
       - name: Upload build artifacts
         uses: actions/upload-artifact@v3
         with:
-          name: build-artifacts
+          name: built-jar-artifacts
           path: build/libs/*.jar
+          compression-level: 9 # maximum compression
 
   build-and-publish-docker-hub:
     name: Build and Publish Docker image to Docker Hub
@@ -56,7 +57,11 @@ jobs:
       - name: Download build artifacts
         uses: actions/download-artifact@v3
         with:
-          name: build-artifacts
+          name: built-jar-artifacts
+          path: build/libs/
+
+      - name: Display structure of downloaded files
+        run: ls -R build/libs/
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
