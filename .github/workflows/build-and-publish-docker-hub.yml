@@ -42,7 +42,7 @@ jobs:
           name: build-artifacts
           path: build/libs/*.jar
 
-  docker-build-and-publish-to-docker-hub:
+  build-and-publish-docker-hub:
     name: Build and Publish Docker image to Docker Hub
     runs-on: ubuntu-latest
     permissions:
@@ -50,6 +50,9 @@ jobs:
     needs: bootjar-build
 
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
       - name: Download build artifacts
         uses: actions/download-artifact@v3
         with:
@@ -60,9 +63,6 @@ jobs:
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
-
-      - name: Checkout code
-        uses: actions/checkout@v4
 
       - name: Get Git commit SHA for versioning
         id: vars
