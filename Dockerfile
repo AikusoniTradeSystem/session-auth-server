@@ -3,6 +3,7 @@ FROM azul/zulu-openjdk:21-latest
 # default environment variables
 ENV LOG_HOME=./logs
 ENV SERVER_PORT=8000
+ENV DOCKER_PORT=8000
 ENV SPRING_PROFILES_ACTIVE=local
 
 # necessary environment variables
