@@ -6,7 +6,8 @@ on:
       - main
 
 jobs:
-  build-and-publish:
+  bootjar-build:
+    name: Gradle Build
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -33,6 +34,14 @@ jobs:
       - name: List build/libs contents
         run: ls -la build/libs/
 
+  docker-build:
+    name: Docker Image Build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    needs: bootjar-build
+
+    steps:
       - name: Get Git commit SHA for versioning
         id: vars
         run: |
@@ -48,6 +57,12 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
+  docker-publish:
+    name: Docker Hub Deployment
+    runs-on: ubuntu-latest
+    needs: docker-build
+
+    steps:
       - name: Push Docker image to Docker Hub
         run: docker push aikusoni/ats-session-auth-server:${{ env.COMMIT_SHA }}
 
