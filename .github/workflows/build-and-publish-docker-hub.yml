@@ -6,7 +6,7 @@ on:
       - main
 
 jobs:
-  build:
+  build-and-publish:
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -25,7 +25,10 @@ jobs:
           gradle-version: 8.5
 
       - name: Build Spring Boot application with Gradle
-        run: ./gradlew bootJar
+        run: ./gradlew clean bootJar --info --stacktrace
+
+      - name: List build/libs contents
+        run: ls -la build/libs/
 
       - name: Get Git commit SHA for versioning
         id: vars
