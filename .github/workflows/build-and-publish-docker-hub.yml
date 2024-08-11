@@ -34,14 +34,25 @@ jobs:
       - name: List build/libs contents
         run: ls -la build/libs/
 
-  docker-build:
-    name: Docker Image Build
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: build-artifacts
+          path: build/libs/*.jar
+
+  docker-build-and-publish-to-docker-hub:
+    name: Build and Publish Docker image to Docker Hub
     runs-on: ubuntu-latest
     permissions:
       contents: read
     needs: bootjar-build
 
     steps:
+      - name: Download build artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: build-artifacts
+
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
 
@@ -65,12 +76,6 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-  docker-publish:
-    name: Docker Hub Deployment
-    runs-on: ubuntu-latest
-    needs: docker-build
-
-    steps:
       - name: Push Docker image to Docker Hub
         run: docker push aikusoni/ats-session-auth-server:${{ env.COMMIT_SHA }}
 
