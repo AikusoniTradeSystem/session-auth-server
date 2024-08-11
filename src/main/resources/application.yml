@@ -8,6 +8,9 @@ spring:
     url: ${DB_URL}
     username: ${DB_USER}
     password: ${DB_PASSWORD}
+  jpa:
+    hibernate:
+      ddl-auto: none
 
 server:
   port: ${SERVER_PORT}
@@ -40,8 +43,11 @@ spring:
       on-profile: local
   sql:
     init:
-      mode: always
-
+      mode: embedded
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
 
 springdoc:
   swagger-ui:
