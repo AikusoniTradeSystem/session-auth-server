@@ -6,10 +6,10 @@ ENV SERVER_PORT=8000
 ENV SPRING_PROFILES_ACTIVE=local
 
 # necessary environment variables
-ENV DB_URL=""
-ENV DB_DRIVER_CLASS_NAME=""
-ENV DB_USER=""
-ENV DB_PASSWORD=""
+#ENV DB_URL=""
+#ENV DB_DRIVER_CLASS_NAME=""
+#ENV DB_USER=""
+#ENV DB_PASSWORD=""
 
 RUN test -n "DB_DRIVER_CLASS_NAME" || echo "Warning: DB_DRIVER_CLASS_NAME is not set!" && \
     test -n "$DB_URL" || echo "Warning: DB_HOST is not set!" && \
