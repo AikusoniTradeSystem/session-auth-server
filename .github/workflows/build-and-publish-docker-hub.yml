@@ -1,0 +1,50 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Azul Zulu JDK 21
+        run: |
+          sudo rpm --import https://repos.azul.com/azul-repo.key
+          sudo curl -o /etc/yum.repos.d/zulu.repo https://repos.azul.com/zulu/rhel/zulu.repo
+          sudo yum install -y zulu21-jdk
+
+      - name: Verify Java installation
+        run: java -version
+
+      - name: Build Spring Boot application with Gradle
+        run: ./gradlew bootJar
+
+      - name: Get Git commit SHA for versioning
+        id: vars
+        run: |
+          echo "COMMIT_SHA=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
+          echo "APP_VERSION=${{ env.COMMIT_SHA }}" >> $GITHUB_ENV
+
+      - name: Build Docker image
+        run: |
+          docker build --build-arg APP_VERSION=${{ env.APP_VERSION }} -t aikusoni/ats-session-auth-server:${{ env.APP_VERSION }} .
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Push Docker image to Docker Hub
+        run: docker push aikusoni/ats-session-auth-server:${{ env.APP_VERSION }}
+
+      - name: Tag the latest image
+        run: |
+          docker tag aikusoni/ats-session-auth-server:${{ env.APP_VERSION }} aikusoni/ats-session-auth-server:latest
+          docker push aikusoni/ats-session-auth-server:latest
