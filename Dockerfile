@@ -18,8 +18,8 @@ ENV LOG_HOME=${LOG_HOME}
 ENV SERVER_PORT=${SERVER_PORT}
 ENV SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE}
 
-COPY build/libs/session-auth-server-${APP_VERSION}.jar /app/session-auth-server-${APP_VERSION}.jar
+COPY build/libs/session-auth-server-0.0.1-SNAPSHOT.jar /app/session-auth-server.jar
 
 EXPOSE ${DOCKER_PORT}
 
-ENTRYPOINT ["java", "-jar", "/app/session-auth-server-${APP_VERSION}.jar"]
+ENTRYPOINT ["java", "-jar", "/app/session-auth-server.jar"]

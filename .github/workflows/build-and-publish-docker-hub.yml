@@ -8,19 +8,21 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v4
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
 
-      - name: Set up Azul Zulu JDK 21
-        run: |
-          sudo rpm --import https://repos.azul.com/azul-repo.key
-          sudo curl -o /etc/yum.repos.d/zulu.repo https://repos.azul.com/zulu/rhel/zulu.repo
-          sudo yum install -y zulu21-jdk
-
-      - name: Verify Java installation
-        run: java -version
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@dbbdc275be76ac10734476cc723d82dfe7ec6eda # v3.4.2
+        with:
+          gradle-version: 8.5
 
       - name: Build Spring Boot application with Gradle
         run: ./gradlew bootJar
@@ -29,11 +31,10 @@ jobs:
         id: vars
         run: |
           echo "COMMIT_SHA=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
-          echo "APP_VERSION=${{ env.COMMIT_SHA }}" >> $GITHUB_ENV
 
       - name: Build Docker image
         run: |
-          docker build --build-arg APP_VERSION=${{ env.APP_VERSION }} -t aikusoni/ats-session-auth-server:${{ env.APP_VERSION }} .
+          docker build -t aikusoni/ats-session-auth-server:${{ env.COMMIT_SHA }} .
 
       - name: Log in to Docker Hub
         uses: docker/login-action@v2
@@ -42,9 +43,9 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Push Docker image to Docker Hub
-        run: docker push aikusoni/ats-session-auth-server:${{ env.APP_VERSION }}
+        run: docker push aikusoni/ats-session-auth-server:${{ env.COMMIT_SHA }}
 
       - name: Tag the latest image
         run: |
-          docker tag aikusoni/ats-session-auth-server:${{ env.APP_VERSION }} aikusoni/ats-session-auth-server:latest
+          docker tag aikusoni/ats-session-auth-server:${{ env.COMMIT_SHA }} aikusoni/ats-session-auth-server:latest
           docker push aikusoni/ats-session-auth-server:latest
