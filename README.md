@@ -18,3 +18,7 @@ gradle 빌드시 GitHub Package Repository 접근을 위해 github 접속 토큰
 gpr.user=test@aikusoni.github.io # 자신의 깃허브 이메일주소
 gpr.token=ghp_ABCDEF123456 # github에서 발급받은 package repository 토큰
 ```
+
+### 기타정보
+- main 브랜치에 소스코드가 머징되면, 서비스가 빌드되어 자동으로 도커 허브에 등록됩니다.
+- 도커허브 주소 : [aikusoni/ats-session-auth-server](https://hub.docker.com/r/aikusoni/ats-session-auth-server)
