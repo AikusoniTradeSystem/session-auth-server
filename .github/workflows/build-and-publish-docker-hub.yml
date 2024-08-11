@@ -84,6 +84,6 @@ jobs:
         run: |
           docker buildx build \
             --platform linux/amd64,linux/arm64 \
-            -t aikusoni/ats-session-auth-server:${{ env.COMMIT_SHA }} .
-            -t aikusoni/ats-session-auth-server:latest \
+            --tag aikusoni/ats-session-auth-server:${{ env.COMMIT_SHA }} \
+            --tag aikusoni/ats-session-auth-server:latest \
             --push .
