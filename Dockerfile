@@ -1,0 +1,27 @@
+# 1단계: Azul Zulu OpenJDK 21 베이스 이미지 선택
+FROM azul/zulu-openjdk-alpine:21-jdk
+
+# 2단계: 빌드 시 사용할 ARG 변수 설정 (외부에서 주입)
+ARG DB_DRIVER_CLASS_NAME
+ARG DB_PASSWORD
+ARG DB_URL
+ARG DB_USER
+ARG LOG_HOME
+ARG SERVER_PORT
+ARG SPRING_PROFILES_ACTIVE
+
+# 3단계: 환경 변수 설정 (빌드 시 ARG 값 사용)
+ENV DB_DRIVER_CLASS_NAME=${DB_DRIVER_CLASS_NAME}
+ENV DB_PASSWORD=${DB_PASSWORD}
+ENV DB_URL=${DB_URL}
+ENV DB_USER=${DB_USER}
+ENV LOG_HOME=${LOG_HOME}
+ENV SERVER_PORT=${SERVER_PORT}
+ENV SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE}
+
+# 4단계: 메인 JAR 파일을 애플리케이션 디렉토리로 복사
+ARG JAR_FILE
+COPY ${JAR_FILE} app.jar
+
+# 5단계: 컨테이너에서 실행할 명령어 설정
+ENTRYPOINT ["java","-jar","/app.jar"]
