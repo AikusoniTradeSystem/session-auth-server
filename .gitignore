@@ -43,3 +43,7 @@ gradle.properties
 
 ### local h2 ###
 .h2data
+
+### logs ###
+/logs
+/LOG_HOME_IS_UNDEFINED
