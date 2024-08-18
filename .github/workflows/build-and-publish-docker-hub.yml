@@ -21,6 +21,9 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
 
+      - name: Set version from Git tag
+        run: echo "GITHUB_REF=${GITHUB_REF}"
+
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@dbbdc275be76ac10734476cc723d82dfe7ec6eda # v3.4.2
         with:
@@ -31,6 +34,7 @@ jobs:
         env:
           GITHUB_USERNAME: ${{ github.actor }}
           GITHUB_TOKEN: ${{ github.token }}
+          GITHUB_TAG: ${{ github.ref_name }}
 
       - name: List build/libs contents
         run: ls -la build/libs/
@@ -83,6 +87,7 @@ jobs:
         run: |
           docker buildx build \
             --platform linux/amd64,linux/arm64 \
-            --tag aikusoni/ats-session-auth-server:${{ env.COMMIT_SHA }} \
+            --build-arg VERSION=${{ github.ref_name }}
+            --tag aikusoni/ats-session-auth-server:${{ github.ref_name }} \
             --tag aikusoni/ats-session-auth-server:latest \
             --push .
