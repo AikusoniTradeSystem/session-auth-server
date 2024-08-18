@@ -1,7 +1,9 @@
 # Stage 1. Build
 FROM azul/zulu-openjdk:21-latest as build
 
-COPY build/libs/session-auth-server-0.0.1-SNAPSHOT.jar /app/session-auth-server.jar
+ARG VERSION
+
+COPY build/libs/session-auth-server-$VERSION.jar /app/session-auth-server.jar
 
 # Stage 2. Runtime (JRE is more lightweight than JDK)
 FROM azul/zulu-openjdk:21-jre-latest as runtime
