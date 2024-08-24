@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class AuthController {
 
-    @GetMapping("/authentication")
+    @GetMapping("/get-role")
     public ResponseEntity<ATSResponseBody<Void>> auth() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
@@ -42,7 +42,8 @@ public class AuthController {
             }
         }
 
-        return ATSResponseBody.<Void>error(ErrorCode.UNAUTHORIZED, "ATC-000002", "미인증 상태입니다.")
+        return ATSResponseBody.<Void>ok(null)
+                .headers(Map.of("X-User", "x"))
                 .toResponseEntity();
     }
 
