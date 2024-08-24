@@ -20,6 +20,7 @@ server:
       charset: utf-8
       enabled: true
       force: true
+  forward-headers-strategy: framework
 
 ats-session-auth:
   allow-swagger-without-login: false
