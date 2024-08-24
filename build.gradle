@@ -40,7 +40,7 @@ repositories {
 dependencies {
 
     implementation 'io.github.aikusonitradesystem:ats-spring-core:0.1.6'
-    implementation 'io.github.aikusonitradesystem:ats-spring-mvc-standard:0.1.3'
+    implementation 'io.github.aikusonitradesystem:ats-spring-mvc-standard:0.1.4'
 
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
