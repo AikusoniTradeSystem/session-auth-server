@@ -25,5 +25,5 @@ gpr.token=ghp_ABCDEF123456 # github에서 발급받은 package repository 토큰
 ```
 
 ### 기타정보
-- main 브랜치에 소스코드가 머징되면, 서비스가 빌드되어 자동으로 도커 허브에 등록됩니다.
+- 소스가 릴리즈되면 서비스가 도커 이미지로 빌드되어 자동으로 도커 허브에 등록됩니다.
 - 도커허브 주소 : [aikusoni/ats-session-auth-server](https://hub.docker.com/r/aikusoni/ats-session-auth-server)
