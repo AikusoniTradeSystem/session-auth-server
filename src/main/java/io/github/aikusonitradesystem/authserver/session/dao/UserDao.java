@@ -13,6 +13,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+import static io.github.aikusonitradesystem.core.utils.MessageUtils.m;
+
 @Slf4j
 @Repository
 @RequiredArgsConstructor
@@ -33,7 +35,7 @@ public class UserDao {
     @Transactional
     public UserDto insertUser(UserDto userDto) {
         if (userRepository.findByUsername(userDto.getUsername()) != null) {
-            throw new ATSRuntimeException(SessionAuthServerErrorCode.USER_ALREADY_EXISTS, "USD-000001", "이미 존재하는 사용자입니다.");
+            throw new ATSRuntimeException(SessionAuthServerErrorCode.USER_ALREADY_EXISTS, "USD-000001", m("session.user_already_exists"));
         }
         return userModelMapper.toUserDto(userRepository.save(userModelMapper.toUserEntity(userDto)));
     }

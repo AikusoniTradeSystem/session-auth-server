@@ -18,6 +18,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static io.github.aikusonitradesystem.core.utils.MessageUtils.m;
+
 @Slf4j
 @RestController
 @RequestMapping("/v1/auth")
@@ -37,7 +39,7 @@ public class AuthController {
                         .headers(headers)
                         .toResponseEntity();
             } else {
-                return ATSResponseBody.<Void>error(ErrorCode.UNAUTHORIZED, "ATC-000001", "인증 정보가 올바르지 않습니다.")
+                return ATSResponseBody.<Void>error(ErrorCode.UNAUTHORIZED, "ATC-000001", m("session.invalid_authentication"))
                         .toResponseEntity();
             }
         }

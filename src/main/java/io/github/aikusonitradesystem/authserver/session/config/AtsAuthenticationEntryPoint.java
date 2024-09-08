@@ -15,6 +15,8 @@ import org.springframework.security.web.AuthenticationEntryPoint;
 
 import java.io.IOException;
 
+import static io.github.aikusonitradesystem.core.utils.MessageUtils.m;
+
 @Slf4j
 @RequiredArgsConstructor
 public class AtsAuthenticationEntryPoint implements AuthenticationEntryPoint {
@@ -29,7 +31,7 @@ public class AtsAuthenticationEntryPoint implements AuthenticationEntryPoint {
         ATSResponseBody<Void> responseBody = ATSResponseBody.<Void>error(
                 ErrorCode.UNAUTHORIZED
                 , "ATE000001"
-                , "로그인 인증이 필요합니다."
+                , m("session.need_login_auth")
         );
 
         ObjectWriter ow = objectMapper.writer().withDefaultPrettyPrinter();

@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+import static io.github.aikusonitradesystem.core.utils.MessageUtils.m;
+
 @Slf4j
 @RestController
 @RequestMapping("/v1/user")
@@ -45,7 +47,7 @@ public class UserController {
     public ResponseEntity<ATSResponseBody<UserDto>> register(
             @Validated @RequestBody UserRegisterForm userRegisterForm
     ) throws Exception {
-        return ATSResponseBody.<UserDto>ok(userService.register(userModelMapper.toUserDto(userRegisterForm)), "계정 생성에 성공했습니다.")
+        return ATSResponseBody.<UserDto>ok(userService.register(userModelMapper.toUserDto(userRegisterForm)), m("session.user_register_success"))
                 .toResponseEntity();
     }
 
@@ -53,7 +55,7 @@ public class UserController {
     public ResponseEntity<ATSResponseBody<UserDto>> update(
             @Validated @RequestBody UserForm userForm
     ) throws Exception {
-        return ATSResponseBody.<UserDto>ok(userService.update(userModelMapper.toUserDto(userForm)), "유저 정보 수정에 성공했습니다.")
+        return ATSResponseBody.<UserDto>ok(userService.update(userModelMapper.toUserDto(userForm)), m("session.user_update_success"))
                 .toResponseEntity();
     }
 
@@ -61,7 +63,7 @@ public class UserController {
     public ResponseEntity<ATSResponseBody<UserDto>> delete(
             @PathVariable String username
     ) throws Exception {
-        return ATSResponseBody.<UserDto>ok(userService.delete(username), "유저 정보 삭제에 성공했습니다.")
+        return ATSResponseBody.<UserDto>ok(userService.delete(username), m("session.user_delete_success"))
                 .toResponseEntity();
     }
 }
