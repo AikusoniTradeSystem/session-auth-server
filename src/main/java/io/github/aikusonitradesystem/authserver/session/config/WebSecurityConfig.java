@@ -8,6 +8,7 @@ import io.github.aikusonitradesystem.authserver.session.exception.AtsUsernameNot
 import io.github.aikusonitradesystem.authserver.session.helper.PasswordHelper;
 import io.github.aikusonitradesystem.authserver.session.model.dto.UserDto;
 import io.github.aikusonitradesystem.authserver.session.properties.AuthServerProperties;
+import io.github.aikusonitradesystem.core.utils.MessageUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
@@ -32,6 +33,8 @@ import org.springframework.security.web.context.HttpSessionSecurityContextReposi
 
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static io.github.aikusonitradesystem.core.utils.MessageUtils.m;
 
 @Slf4j
 @Configuration
@@ -140,10 +143,11 @@ public class WebSecurityConfig {
         return username -> {
             UserDto userDto = userDao.getUser(username);
             if (userDto == null) {
-                throw new AtsUsernameNotFoundException(SessionAuthServerErrorCode.FAILED_TO_FIND_USER, "UDS-000001", "사용자를 찾을 수 없습니다.");
+                throw new AtsUsernameNotFoundException(SessionAuthServerErrorCode.FAILED_TO_FIND_USER, "UDS-000001", m("session.user_not_found"));
             }
             if (!authServerProperties.getPasswordEncoderType().equals(passwordHelper.passwordType(userDto.getPassword()))) {
-                throw new AtsUsernameNotFoundException(SessionAuthServerErrorCode.PASSWORD_IS_TOO_OLD, "UDS-000002", "비밀번호 인코더가 일치하지 않습니다.");
+                // 비밀번호 인코더가 일치하지 않을 경우, 패스워드가 오래 됐다는 메시지를 띄운다.
+                throw new AtsUsernameNotFoundException(SessionAuthServerErrorCode.PASSWORD_IS_TOO_OLD, "UDS-000002", m("session.password_is_too_old"));
             }
             List<String> roles = userRoleDao.getRoles(username);
             return new User(userDto.getUsername(), passwordHelper.encodedPassword(userDto.getPassword()), roles.stream().map(SimpleGrantedAuthority::new).collect(Collectors.toList()));
@@ -154,7 +158,7 @@ public class WebSecurityConfig {
     public PasswordEncoder passwordEncoder() {
         return switch (authServerProperties.getPasswordEncoderType()) {
             case "bcrypt" -> new BCryptPasswordEncoder();
-            default -> throw new IllegalArgumentException("지원하지 않는 비밀번호 인코더입니다.");
+            default -> throw new IllegalArgumentException("It is Not supported password encoder type: " + authServerProperties.getPasswordEncoderType());
         };
     }
 
