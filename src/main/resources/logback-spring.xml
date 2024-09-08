@@ -31,6 +31,8 @@
     </appender>
 
     <springProfile name="local">
+        <logger name="org.springframework.data.redis" level="DEBUG" />
+
         <root level="DEBUG">
             <appender-ref ref="STDOUT" />
             <appender-ref ref="ROLLING_FILE" />

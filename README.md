@@ -1,6 +1,9 @@
 # session-auth-server
 세션 인증 방식의 서버 (스프링)
 
+### 실행 전 필수 조건
+- 세션 클러스터링 용도로 Redis를 사용하므로 redis 서버가 필요합니다.
+
 ### JAR 환경변수 목록
 - spring.profiles.active (예: local , dev, prod)
 - DB_DRIVER_CLASS_NAME (예: org.h2.Driver, com.mysql.cj.jdbc.Driver)
@@ -9,6 +12,8 @@
 - DB_PASSWORD (예: password)
 - SERVER_PORT (예: 8000)
 - LOG_HOME (예: logs)
+- REDIS_HOST (예: localhost)
+- REDIS_PORT (예: 6379)
 
 ### gradle.properties
 gradle 빌드시 GitHub Package Repository 접근을 위해 github 접속 토큰이 필요합니다.
