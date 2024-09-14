@@ -5,7 +5,7 @@ plugins {
     id "io.freefair.lombok" version "8.6"
 }
 
-group = 'io.github.aikusonitradesystem'
+group = 'io.github.aikusoni.ats.spring'
 version = System.getenv("GITHUB_TAG") ?: "0.0.1-SNAPSHOT"
 
 java {
@@ -39,8 +39,8 @@ repositories {
 
 dependencies {
 
-    implementation 'io.github.aikusonitradesystem:ats-spring-core:0.1.11'
-    implementation 'io.github.aikusonitradesystem:ats-spring-mvc-standard:0.1.5'
+    implementation 'io.github.aikusoni.ats.spring:core:0.2.1'
+    implementation 'io.github.aikusoni.ats.spring:mvcstandard:0.2.3'
 
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
