@@ -27,6 +27,13 @@ server:
       charset: utf-8
       enabled: true
       force: true
+    session:
+      cookie:
+        name: SESSIONID
+        path: /
+        http-only: true
+        secure: false
+      timeout: 30m
   forward-headers-strategy: framework
 
 ats-session-auth:
@@ -81,6 +88,13 @@ spring:
   config:
     activate:
       on-profile: prod
+
+server:
+  servlet:
+    session:
+      cookie:
+        domain: ats.aikusoni.com # example
+        secure: true
 
 springdoc:
   swagger-ui:
