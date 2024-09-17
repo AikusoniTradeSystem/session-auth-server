@@ -1,6 +1,9 @@
 name: CI/CD Pipeline
 
 on:
+  push:
+    branches:
+      - develop
   release:
     types: [published]
 
@@ -93,11 +96,21 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Build and Push Docker image
+      - name: Build and Push Docker image (develop)
+        if: "${{ github.ref == 'refs/heads/develop' }}"
         run: |
-          docker buildx build \
-            --platform linux/amd64,linux/arm64 \
-            --build-arg VERSION=${{ github.ref_name }} \
-            --tag aikusoni/ats-session-auth-server:${{ github.ref_name }} \
-            --tag aikusoni/ats-session-auth-server:latest \
-            --push .
+            docker buildx build \
+              --platform linux/amd64,linux/arm64 \
+              --build-arg VERSION=${{ github.ref_name }} \
+              --tag aikusoni/ats-session-auth-server:develop \
+              --push .
+
+      - name: Build and Push Docker image (release)
+        if: "${{ github.event_name == 'release' }}"
+        run: |
+            docker buildx build \
+              --platform linux/amd64,linux/arm64 \
+              --build-arg VERSION=${{ github.ref_name }} \
+              --tag aikusoni/ats-session-auth-server:${{ github.ref_name }} \
+              --tag aikusoni/ats-session-auth-server:latest \
+              --push .
