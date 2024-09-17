@@ -1,8 +1,12 @@
 name: CI/CD Pipeline
 
 on:
+  push:
+    branches:
+      - develop
   release:
-    types: [published]
+    types:
+      - created
 
 jobs:
   bootjar-build:
@@ -101,3 +105,20 @@ jobs:
             --tag aikusoni/ats-session-auth-server:${{ github.ref_name }} \
             --tag aikusoni/ats-session-auth-server:latest \
             --push .
+
+      - name: Build and Push Docker image
+          run: |
+            if [[ "${{ github.ref }}" == "refs/heads/develop" ]]; then
+              docker buildx build \
+                --platform linux/amd64,linux/arm64 \
+                --build-arg VERSION=${{ github.ref_name }} \
+                --tag aikusoni/ats-session-auth-server:develop \
+                --push .
+            elif [[ "${{ github.event_name }}" == "release" ]]; then
+              docker buildx build \
+                --platform linux/amd64,linux/arm64 \
+                --build-arg VERSION=${{ github.ref_name }} \
+                --tag aikusoni/ats-session-auth-server:${{ github.ref_name }} \
+                --tag aikusoni/ats-session-auth-server:latest \
+                --push .
+            fi
