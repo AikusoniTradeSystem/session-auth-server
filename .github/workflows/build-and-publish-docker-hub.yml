@@ -5,8 +5,7 @@ on:
     branches:
       - develop
   release:
-    types:
-      - created
+    types: [published]
 
 jobs:
   bootjar-build:
